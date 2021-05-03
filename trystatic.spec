@@ -4,12 +4,12 @@
 #
 Name     : trystatic
 Version  : 1.0.0
-Release  : 10
-URL      : https://github.com/insilications/trystatic-clr/raw/master/dist/trystatic-1.0.0.tar.gz
-Source0  : https://github.com/insilications/trystatic-clr/raw/master/dist/trystatic-1.0.0.tar.gz
+Release  : 11
+URL      : file:///aot/build/clearlinux/packages/trystatic/trystatic-.tar.gz
+Source0  : file:///aot/build/clearlinux/packages/trystatic/trystatic-.tar.gz
 Summary  : trystatic
 Group    : Development/Tools
-License  : MIT
+License  : GPL-2.0 MIT
 Requires: trystatic-bin = %{version}-%{release}
 Requires: trystatic-python = %{version}-%{release}
 Requires: trystatic-python3 = %{version}-%{release}
@@ -17,6 +17,8 @@ Requires: fd
 Requires: ripgrep
 Requires: sd
 BuildRequires : buildreq-distutils3
+BuildRequires : pep517
+BuildRequires : python-build
 BuildRequires : setuptools-python
 
 %description
@@ -51,8 +53,8 @@ python3 components for the trystatic package.
 
 
 %prep
-%setup -q -n trystatic-1.0.0
-cd %{_builddir}/trystatic-1.0.0
+%setup -q -n trystatic
+cd %{_builddir}/trystatic
 
 %build
 unset http_proxy
@@ -60,7 +62,7 @@ unset https_proxy
 unset no_proxy
 export SSL_CERT_FILE=/var/cache/ca-certs/anchors/ca-certificates.crt
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1617538813
+export SOURCE_DATE_EPOCH=1620018158
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
@@ -70,8 +72,13 @@ export FCFLAGS="$FFLAGS -O3 -ffat-lto-objects -flto=16 "
 export FFLAGS="$FFLAGS -O3 -ffat-lto-objects -flto=16 "
 export CXXFLAGS="$CXXFLAGS -O3 -ffat-lto-objects -flto=16 "
 export MAKEFLAGS=%{?_smp_mflags}
+if [ ! -f setup.py ]; then
+printf "#!/usr/bin/env python\nfrom setuptools import setup\nsetup()" > setup.py
+chmod +x setup.py
 python3 setup.py build
-
+else
+python3 setup.py build
+fi
 %install
 export MAKEFLAGS=%{?_smp_mflags}
 rm -rf %{buildroot}
